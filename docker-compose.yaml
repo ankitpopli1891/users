@@ -1,0 +1,23 @@
+version: '3'
+services:
+  database:
+    image: postgres:9.6-alpine
+    volumes:
+    - /opt/postgres9.6:/var/lib/postgresql/data
+  migrations:
+    build: .
+    depends_on:
+    - database
+    command: node node_modules/knex/bin/cli migrate:latest
+  seed:
+    build: .
+    depends_on:
+    - migrations
+    command: node node_modules/knex/bin/cli seed:run
+  apis:
+    build: .
+    ports:
+    - 3000:80
+    depends_on:
+    - database
+    - seed
